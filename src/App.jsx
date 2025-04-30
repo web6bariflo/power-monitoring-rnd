@@ -62,7 +62,7 @@ const App = () => {
 
       {/* Footer */}
       <footer className="mt-16 text-center text-gray-500 text-xs">
-        <p>Power Monitoring Dashboard • Bafiflo Labs - {new Date().getFullYear()}</p>
+        <p>Power Monitoring Dashboard • Bariflo Labs - {new Date().getFullYear()}</p>
       </footer>
     </div>
   );
