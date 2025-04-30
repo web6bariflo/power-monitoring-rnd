@@ -83,7 +83,7 @@ export const MqttProvider = ({ children }) => {
       });
     
       // Filter specific logs for eventLogs
-      const allowedLogs = [
+      const allowedLogs = [             
         "New R&D event scheduled.",
         "Activated Aeration Device",
         "Deactivated Aeration Device",

@@ -164,7 +164,7 @@ const LineCharts = () => {
 
         {/* Device 0x49 */}
         <div className="w-full md:w-1/2 h-96 bg-white p-4 shadow rounded relative">
-          <h2 className="text-lg font-semibold mb-2">Areation Device one</h2>
+          <h2 className="text-lg font-semibold mb-2">Areation Device two</h2>
           <div className="absolute top-4 right-4 flex gap-2 text-sm">
             <label className="flex items-center gap-1 text-blue-600 font-medium">
               <input

@@ -37,7 +37,9 @@ const RnD = () => {
     };
 
     const message = {
+
       start_time: startTime,
+
       duration: differenceInSeconds,
       main: partMap[selectedPart] || 0,
     };
@@ -131,5 +133,10 @@ const RnD = () => {
     </div>
   );
 };
+ 
+
+
 
 export default RnD;
+
+
