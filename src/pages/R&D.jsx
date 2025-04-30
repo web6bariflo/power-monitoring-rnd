@@ -8,7 +8,7 @@ const RnD = () => {
   const [result, setResult] = useState('');
   const { publishMessage } = useMqtt();
 
-  
+
 
   const calculateTimeDifference = () => {
     if (!startTime || !endTime) {
@@ -46,7 +46,7 @@ const RnD = () => {
 
     publishMessage('pomon/rnd/schedule', JSON.stringify(message));
     // publishMessage('456/rnd', JSON.stringify(message));
-    
+
   };
 
   return (
@@ -97,7 +97,7 @@ const RnD = () => {
 
                 }}
               />
-              <span>Part One</span>
+              <span className=' text-sm'>Aeration one</span>
             </label>
             <label className="flex items-center space-x-2">
               <input
@@ -111,7 +111,7 @@ const RnD = () => {
                   }
                 }}
               />
-              <span>Part Two</span>
+              <span className=' text-sm'>Aeration Two</span>
             </label>
           </div>
         </div>
@@ -133,7 +133,7 @@ const RnD = () => {
     </div>
   );
 };
- 
+
 
 
 
