@@ -3,7 +3,7 @@ import Chart from 'chart.js/auto';
 import { useMqtt } from '../store/Mqtt';
 
 const LineCharts = () => {
-  const { data, clearTopicData } = useMqtt();
+  const { data, clearTopicData , alertStatus } = useMqtt();
   const messages = data['pomon/BFL_PomonA001/rnd/status'] || [];
   // const messages = data['123/rnd'] || [];
   console.log(messages);
@@ -128,6 +128,8 @@ const LineCharts = () => {
       >
         Reset
       </button>
+
+ 
 
       <div className="flex flex-col md:flex-row gap-6 p-3 h-fit">
         {/* Device 0x48 */}

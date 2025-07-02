@@ -8,6 +8,8 @@ export const MqttProvider = ({ children }) => {
   const [connectionStatus, setConnectionStatus] = useState("disconnected");
   const [eventLogs, setEventLogs] = useState([]);
   const [passedMessage, setPassedMessage] = useState(null);
+  const [alertStatus, setAlertStatus] = useState(null); // 'on', 'off', or null
+
 
   const [data, setData] = useState(() => {
     return {
@@ -41,8 +43,9 @@ export const MqttProvider = ({ children }) => {
       handleStatusChange("connected");
       mqttClient.subscribe([
         // "123/rnd",
-        "pomon/BFL_PomonA001/rnd/status"
-        // "project/maintenance/status",
+        "pomon/BFL_PomonA001/rnd/status",
+        "pomon/BFL_PomonA001/rnd/alart"
+        // "project/maintenance/alart",
         // "project/maintenance/test",
       ]);
     });
@@ -92,6 +95,12 @@ export const MqttProvider = ({ children }) => {
         if (topic === "pomon/BFL_PomonA001/rnd/status" && allowedLogs.some(msg => line.includes(msg))) {
           setEventLogs(prev => [...prev, { time: new Date().toISOString(), message: line }]);
         }
+
+          // ✅ Handle alert status separately
+  if (topic === "auto_feeder/BFL_FdtryA001/system/alert") {
+    setAlertStatus(messageStr.trim().toLowerCase()); // 'on' or 'off'
+    return;
+  }
       });
     });
 
@@ -134,7 +143,7 @@ export const MqttProvider = ({ children }) => {
 
   return (
     <MqttContext.Provider
-      value={{ data, publishMessage, clearTopicData, connectionStatus, eventLogs , passedMessage }}
+      value={{ data, publishMessage, clearTopicData, alertStatus , connectionStatus, eventLogs , passedMessage }}
     >
       {children}
     </MqttContext.Provider>

@@ -4,18 +4,22 @@ import Chart from './components/Chart';
 import { useMqtt } from './store/Mqtt';
 
 const App = () => {
-  const { eventLogs, passedMessage } = useMqtt(); // Access eventLogs and passedMessage from context
+  const { eventLogs, passedMessage, alertStatus } = useMqtt(); // Access eventLogs and passedMessage from context
 
   // Get the most recent event log, if available
   const lastStatusEvent = eventLogs?.length > 0 ? eventLogs[eventLogs.length - 1] : null;
 
   return (
     <div className="h-screen bg-gray-50 font-sans py-10">
+      <span className="text-sm font-semibold text-gray-700 ms-8">
+        Alart Status: {alertStatus}
+      </span>
       {/* Header */}
       <header className="mb-10 text-center">
         <h1 className="text-2xl font-semibold text-gray-800 mb-1">
           Power Monitoring Dashboard
         </h1>
+
 
         {/* Show the latest R&D event if passedMessage exists */}
         {passedMessage ? (
@@ -33,6 +37,8 @@ const App = () => {
           <h2 className="text-lg text-gray-600 mt-2">No schedule published.</h2>
         )}
 
+
+
         {/* Show the latest status event log if it exists */}
         {lastStatusEvent ? (
           <h2 className="text-lg text-gray-600 mt-1">
@@ -42,6 +48,8 @@ const App = () => {
           <h2 className="text-lg text-gray-600 mt-1">No recent device status events.</h2>
         )}
       </header>
+
+
 
       {/* Column Layout */}
       <div className="flex flex-col md:flex-row gap-2 max-w-7xl mx-auto">
