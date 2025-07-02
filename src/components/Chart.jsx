@@ -4,7 +4,7 @@ import { useMqtt } from '../store/Mqtt';
 
 const LineCharts = () => {
   const { data, clearTopicData } = useMqtt();
-  const messages = data['pomon/rnd/status'] || [];
+  const messages = data['pomon/BFL_PomonA001/rnd/status'] || [];
   // const messages = data['123/rnd'] || [];
   console.log(messages);
 
@@ -117,7 +117,7 @@ const LineCharts = () => {
   }, [latest49Data, visible49]);
 
   const handleReset = () => {
-    clearTopicData("pomon/rnd/status");
+    clearTopicData("pomon/BFL_PomonA001/rnd/status");
   };
 
   return (

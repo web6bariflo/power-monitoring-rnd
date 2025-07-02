@@ -12,8 +12,7 @@ export const MqttProvider = ({ children }) => {
   const [data, setData] = useState(() => {
     return {
       // "123/rnd": [],
-      "pomon/rnd/status": [],
- 
+      "pomon/BFL_PomonA001/rnd/status": [],
     };
 
     
@@ -42,7 +41,7 @@ export const MqttProvider = ({ children }) => {
       handleStatusChange("connected");
       mqttClient.subscribe([
         // "123/rnd",
-        "pomon/rnd/status"
+        "pomon/BFL_PomonA001/rnd/status"
         // "project/maintenance/status",
         // "project/maintenance/test",
       ]);
@@ -90,7 +89,7 @@ export const MqttProvider = ({ children }) => {
       ];
     
       lines.forEach((line) => {
-        if (topic === "pomon/rnd/status" && allowedLogs.some(msg => line.includes(msg))) {
+        if (topic === "pomon/BFL_PomonA001/rnd/status" && allowedLogs.some(msg => line.includes(msg))) {
           setEventLogs(prev => [...prev, { time: new Date().toISOString(), message: line }]);
         }
       });
@@ -104,26 +103,16 @@ export const MqttProvider = ({ children }) => {
     };
   }, []);
 
-  // const publishMessage = (topic, message) => {
-  //   if (client && client.connected) {
-  //     client.publish(topic, message);
-  //     console.log(`🚀 Published to ${topic}:`, message);
-  //   } else {
-  //     console.warn("❌ MQTT client not connected");
-  //   }
-  // };
-
 
   const publishMessage = (topic, message) => {
     if (client && client.connected) {
       client.publish(topic, message);
       console.log(`🚀 Published to ${topic}:`, message);
 
-      if (topic === "pomon/rnd/schedule") {
-      // if (topic === "456/rnd") {
+      if (topic === "pomon/BFL_PomonA001/rnd/schedule") {
         try {
           const parsed = JSON.parse(message);
-          setPassedMessage(parsed); // ✅ Save the latest published schedule event
+          setPassedMessage(parsed); 
         } catch (err) {
           console.error("Failed to parse R&D schedule message:", err);
         }

@@ -44,9 +44,7 @@ const RnD = () => {
       main: partMap[selectedPart] || 0,
     };
 
-    publishMessage('pomon/rnd/schedule', JSON.stringify(message));
-    // publishMessage('456/rnd', JSON.stringify(message));
-
+    publishMessage('pomon/BFL_PomonA001/rnd/schedule', JSON.stringify(message));
   };
 
   return (
