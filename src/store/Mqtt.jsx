@@ -97,10 +97,11 @@ export const MqttProvider = ({ children }) => {
         }
 
           // ✅ Handle alert status separately
-  if (topic === "auto_feeder/BFL_FdtryA001/system/alert") {
+  if (topic === "pomon/BFL_PomonA001/rnd/alart") {
     setAlertStatus(messageStr.trim().toLowerCase()); // 'on' or 'off'
     return;
   }
+
       });
     });
 
