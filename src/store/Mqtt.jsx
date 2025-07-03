@@ -17,7 +17,7 @@ export const MqttProvider = ({ children }) => {
       "pomon/BFL_PomonA001/rnd/status": [],
     };
 
-    
+
   });
 
   useEffect(() => {
@@ -66,15 +66,15 @@ export const MqttProvider = ({ children }) => {
     mqttClient.on("message", (topic, message) => {
       const messageStr = message.toString();
       console.log(`📩 ${topic}:`, messageStr);
-    
+
       // Split multi-line messages (if both devices are in one message)
       const lines = messageStr.split('\n').map(line => line.trim()).filter(line => line.length > 0);
-    
+
       const newMessages = lines.map(line => ({
         time: new Date().toISOString(),
         value: line,
       }));
-    
+
       setData((prevData) => {
         const existing = prevData[topic] || [];
         const updatedData = {
@@ -83,24 +83,24 @@ export const MqttProvider = ({ children }) => {
         };
         return updatedData;
       });
-    
+
       // Filter specific logs for eventLogs
-      const allowedLogs = [             
+      const allowedLogs = [
         "New R&D event scheduled.",
         "Activated Aeration Device",
         "Deactivated Aeration Device",
       ];
-    
+
       lines.forEach((line) => {
         if (topic === "pomon/BFL_PomonA001/rnd/status" && allowedLogs.some(msg => line.includes(msg))) {
           setEventLogs(prev => [...prev, { time: new Date().toISOString(), message: line }]);
         }
 
-          // ✅ Handle alert status separately
-  if (topic === "pomon/BFL_PomonA001/rnd/alart") {
-    setAlertStatus(messageStr.trim().toLowerCase()); // 'on' or 'off'
-    return;
-  }
+        // ✅ Handle alert status separately
+        if (topic === "pomon/BFL_PomonA001/rnd/alart") {
+          setAlertStatus(messageStr.trim().toLowerCase()); // 'on' or 'off'
+          return;
+        }
 
       });
     });
@@ -122,7 +122,7 @@ export const MqttProvider = ({ children }) => {
       if (topic === "pomon/BFL_PomonA001/rnd/schedule") {
         try {
           const parsed = JSON.parse(message);
-          setPassedMessage(parsed); 
+          setPassedMessage(parsed);
         } catch (err) {
           console.error("Failed to parse R&D schedule message:", err);
         }
@@ -144,7 +144,7 @@ export const MqttProvider = ({ children }) => {
 
   return (
     <MqttContext.Provider
-      value={{ data, publishMessage, clearTopicData, alertStatus , connectionStatus, eventLogs , passedMessage }}
+      value={{ data, publishMessage, clearTopicData, alertStatus, connectionStatus, eventLogs, passedMessage }}
     >
       {children}
     </MqttContext.Provider>

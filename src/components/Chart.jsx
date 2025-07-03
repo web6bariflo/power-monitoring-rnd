@@ -56,7 +56,7 @@ const LineCharts = () => {
     if (visibilities.R) {
       labels.push('R');
       data.push(values.R);
-      backgroundColors.push('#3b82f6');
+      backgroundColors.push('#ef4444');
     }
     if (visibilities.Y) {
       labels.push('Y');
@@ -66,7 +66,7 @@ const LineCharts = () => {
     if (visibilities.B) {
       labels.push('B');
       data.push(values.B);
-      backgroundColors.push('#ef4444');
+      backgroundColors.push('#3b82f6');
     }
 
     if (instanceRef.current) instanceRef.current.destroy();
