@@ -10,10 +10,8 @@ const App = () => {
   const lastStatusEvent = eventLogs?.length > 0 ? eventLogs[eventLogs.length - 1] : null;
 
   return (
-    <div className="h-screen bg-gray-50 font-sans py-10">
-      <span className="text-sm font-semibold text-gray-700 ms-8">
-        Alart Status: {alertStatus}
-      </span>
+    <div className="h-screen bg-gray-50 font-sans py-6">
+
       {/* Header */}
       <header className="mb-10 text-center">
         <h1 className="text-2xl font-semibold text-gray-800 mb-1">
@@ -39,6 +37,8 @@ const App = () => {
 
 
 
+
+
         {/* Show the latest status event log if it exists */}
         {lastStatusEvent ? (
           <h2 className="text-lg text-gray-600 mt-1">
@@ -48,6 +48,10 @@ const App = () => {
           <h2 className="text-lg text-gray-600 mt-1">No recent device status events.</h2>
         )}
       </header>
+
+      <span className="text-sm font-semibold text-gray-700 ms-8">
+        Alert Status: {alertStatus}
+      </span>
 
 
 

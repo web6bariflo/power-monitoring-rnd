@@ -3,7 +3,7 @@ import Chart from 'chart.js/auto';
 import { useMqtt } from '../store/Mqtt';
 
 const LineCharts = () => {
-  const { data, clearTopicData , alertStatus } = useMqtt();
+  const { data, clearTopicData, alertStatus } = useMqtt();
   const messages = data['pomon/BFL_PomonA001/rnd/status'] || [];
   // const messages = data['123/rnd'] || [];
   console.log(messages);
@@ -129,49 +129,20 @@ const LineCharts = () => {
         Reset
       </button>
 
- 
+
 
       <div className="flex flex-col md:flex-row gap-6 p-3 h-fit">
-        {/* Device 0x48 */}
-        <div className="w-full md:w-1/2 h-96 bg-white p-4 shadow rounded relative">
-          <h2 className="text-lg font-semibold mb-2">Areation Device one</h2>
-          <div className="absolute top-4 right-4 flex gap-2 text-sm">
-            <label className="flex items-center gap-1 text-blue-600 font-medium">
-              <input
-                type="checkbox"
-                checked={visible48.R}
-                onChange={() => setVisible48((prev) => ({ ...prev, R: !prev.R }))}
-              />
-              R
-            </label>
-            <label className="flex items-center gap-1 text-yellow-600 font-medium">
-              <input
-                type="checkbox"
-                checked={visible48.Y}
-                onChange={() => setVisible48((prev) => ({ ...prev, Y: !prev.Y }))}
-              />
-              Y
-            </label>
-            <label className="flex items-center gap-1 text-red-600 font-medium">
-              <input
-                type="checkbox"
-                checked={visible48.B}
-                onChange={() => setVisible48((prev) => ({ ...prev, B: !prev.B }))}
-              />
-              B
-            </label>
-          </div>
-          <canvas ref={chartRef1} className="w-full h-full" />
-        </div>
+
 
         {/* Device 0x49 */}
         <div className="w-full md:w-1/2 h-96 bg-white p-4 shadow rounded relative">
-          <h2 className="text-lg font-semibold mb-2">Areation Device two</h2>
+          <h2 className="text-lg font-semibold mb-2">Areation Device One</h2>
           <div className="absolute top-4 right-4 flex gap-2 text-sm">
-            <label className="flex items-center gap-1 text-blue-600 font-medium">
+            <label className="flex items-center gap-1 text-red-600 font-medium">
               <input
                 type="checkbox"
                 checked={visible49.R}
+                style={{ accentColor: '#ef4444' }}
                 onChange={() => setVisible49((prev) => ({ ...prev, R: !prev.R }))}
               />
               R
@@ -180,11 +151,12 @@ const LineCharts = () => {
               <input
                 type="checkbox"
                 checked={visible49.Y}
+                style={{ accentColor: '#facc15' }}
                 onChange={() => setVisible49((prev) => ({ ...prev, Y: !prev.Y }))}
               />
               Y
             </label>
-            <label className="flex items-center gap-1 text-red-600 font-medium">
+            <label className="flex items-center gap-1 text-blue-600 font-medium">
               <input
                 type="checkbox"
                 checked={visible49.B}
@@ -195,6 +167,44 @@ const LineCharts = () => {
           </div>
           <canvas ref={chartRef2} className="w-full h-full" />
         </div>
+
+
+                {/* Device 0x48 */}
+        <div className="w-full md:w-1/2 h-96 bg-white p-4 shadow rounded relative">
+          <h2 className="text-lg font-semibold mb-2">Areation Device Two</h2>
+          <div className="absolute top-4 right-4 flex gap-2 text-sm">
+            <label className="flex items-center gap-1 text-red-600 font-medium">
+              <input
+                type="checkbox"
+                checked={visible48.R}
+                style={{ accentColor: '#ef4444' }}
+                onChange={() => setVisible48((prev) => ({ ...prev, R: !prev.R }))}
+              />
+              R
+            </label>
+            <label className="flex items-center gap-1 text-yellow-600 font-medium">
+              <input
+                type="checkbox"
+                checked={visible48.Y}
+                style={{ accentColor: '#facc15' }}
+                onChange={() => setVisible48((prev) => ({ ...prev, Y: !prev.Y }))}
+              />
+              Y
+            </label>
+            <label className="flex items-center gap-1 text-blue-600 font-medium">
+              <input
+                type="checkbox"
+                checked={visible48.B}
+                style={{ accentColor: '#3b82f6' }}
+                onChange={() => setVisible48((prev) => ({ ...prev, B: !prev.B }))}
+              />
+              B
+            </label>
+          </div>
+          <canvas ref={chartRef1} className="w-full h-full" />
+        </div>
+
+        
       </div>
     </React.Fragment>
   );

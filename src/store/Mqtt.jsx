@@ -10,15 +10,10 @@ export const MqttProvider = ({ children }) => {
   const [passedMessage, setPassedMessage] = useState(null);
   const [alertStatus, setAlertStatus] = useState(null); // 'on', 'off', or null
 
-
-  const [data, setData] = useState(() => {
-    return {
-      // "123/rnd": [],
-      "pomon/BFL_PomonA001/rnd/status": [],
-    };
-
-
-  });
+  const [data, setData] = useState(() => ({
+    // "123/rnd": [],
+    "pomon/BFL_PomonA001/rnd/status": [],
+  }));
 
   useEffect(() => {
     const mqttClient = mqtt.connect({
@@ -44,7 +39,7 @@ export const MqttProvider = ({ children }) => {
       mqttClient.subscribe([
         // "123/rnd",
         "pomon/BFL_PomonA001/rnd/status",
-        "pomon/BFL_PomonA001/rnd/alart"
+        "pomon/BFL_PomonA001/rnd/alert", // ← corrected spelling only
         // "project/maintenance/alart",
         // "project/maintenance/test",
       ]);
@@ -59,8 +54,8 @@ export const MqttProvider = ({ children }) => {
     });
 
     mqttClient.on("error", (err) => {
-      console.error("MQTT error:", err);
-      handleStatusChange("error");
+      // console.error("MQTT error:", err);
+      // handleStatusChange("error");
     });
 
     mqttClient.on("message", (topic, message) => {
@@ -68,20 +63,22 @@ export const MqttProvider = ({ children }) => {
       console.log(`📩 ${topic}:`, messageStr);
 
       // Split multi-line messages (if both devices are in one message)
-      const lines = messageStr.split('\n').map(line => line.trim()).filter(line => line.length > 0);
+      const lines = messageStr
+        .split("\n")
+        .map((line) => line.trim())
+        .filter((line) => line.length > 0);
 
-      const newMessages = lines.map(line => ({
+      const newMessages = lines.map((line) => ({
         time: new Date().toISOString(),
         value: line,
       }));
 
       setData((prevData) => {
         const existing = prevData[topic] || [];
-        const updatedData = {
+        return {
           ...prevData,
           [topic]: [...existing, ...newMessages].slice(-4),
         };
-        return updatedData;
       });
 
       // Filter specific logs for eventLogs
@@ -92,17 +89,43 @@ export const MqttProvider = ({ children }) => {
       ];
 
       lines.forEach((line) => {
-        if (topic === "pomon/BFL_PomonA001/rnd/status" && allowedLogs.some(msg => line.includes(msg))) {
-          setEventLogs(prev => [...prev, { time: new Date().toISOString(), message: line }]);
+        if (
+          topic === "pomon/BFL_PomonA001/rnd/status" &&
+          allowedLogs.some((msg) => line.includes(msg))
+        ) {
+          setEventLogs((prev) => [
+            ...prev,
+            { time: new Date().toISOString(), message: line },
+          ]);
         }
-
-        // ✅ Handle alert status separately
-        if (topic === "pomon/BFL_PomonA001/rnd/alart") {
-          setAlertStatus(messageStr.trim().toLowerCase()); // 'on' or 'off'
-          return;
-        }
-
       });
+
+      // ✅ Handle alert status
+if (topic === "pomon/BFL_PomonA001/rnd/alert") {
+  let formatted = messageStr.trim().toLowerCase();   // default fallback
+
+  try {
+    const jsonPart = formatted.replace(/^alert status:\s*/i, "");
+    const payload = JSON.parse(jsonPart);
+
+    let deviceLabel = payload.adc;
+    if (payload.adc === "0x48") {
+      deviceLabel = "Device One";
+    } else if (payload.adc === "0x49") {
+      deviceLabel = "Device Two";
+    }
+
+    const phase = payload.phase.toUpperCase();
+    formatted = `${deviceLabel} , ${phase}-${payload.value}`;
+  } catch {
+    /* fallback to raw string if JSON parsing fails */
+  }
+
+  setAlertStatus(formatted);
+  console.log("🚨 Alert status updated:", formatted);
+  return;
+}
+
     });
 
     setClient(mqttClient);
@@ -112,7 +135,6 @@ export const MqttProvider = ({ children }) => {
       handleStatusChange("disconnected");
     };
   }, []);
-
 
   const publishMessage = (topic, message) => {
     if (client && client.connected) {
@@ -133,18 +155,23 @@ export const MqttProvider = ({ children }) => {
   };
 
   const clearTopicData = (topic) => {
-    setData((prevData) => {
-      const updatedData = {
-        ...prevData,
-        [topic]: [],
-      };
-      return updatedData;
-    });
+    setData((prevData) => ({
+      ...prevData,
+      [topic]: [],
+    }));
   };
 
   return (
     <MqttContext.Provider
-      value={{ data, publishMessage, clearTopicData, alertStatus, connectionStatus, eventLogs, passedMessage }}
+      value={{
+        data,
+        publishMessage,
+        clearTopicData,
+        alertStatus,
+        connectionStatus,
+        eventLogs,
+        passedMessage,
+      }}
     >
       {children}
     </MqttContext.Provider>
