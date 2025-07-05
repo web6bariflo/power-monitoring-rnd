@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import mqtt from "mqtt";
+import axios from "axios";
 
 const MqttContext = createContext();
 
@@ -8,12 +9,17 @@ export const MqttProvider = ({ children }) => {
   const [connectionStatus, setConnectionStatus] = useState("disconnected");
   const [eventLogs, setEventLogs] = useState([]);
   const [passedMessage, setPassedMessage] = useState(null);
-  const [alertStatus, setAlertStatus] = useState(null); // 'on', 'off', or null
+  const [alertStatus, setAlertStatus] = useState(null);
+
+  const apiUrl = import.meta.env.VITE_API_URL
 
   const [data, setData] = useState(() => ({
     // "123/rnd": [],
     "pomon/BFL_PomonA001/rnd/status": [],
   }));
+
+  // 🔗 NEW: remember which device triggered the last post
+  const lastDeviceRef = useRef(null);
 
   useEffect(() => {
     const mqttClient = mqtt.connect({
@@ -39,9 +45,9 @@ export const MqttProvider = ({ children }) => {
       mqttClient.subscribe([
         // "123/rnd",
         "pomon/BFL_PomonA001/rnd/status",
-        "pomon/BFL_PomonA001/rnd/alert", // ← corrected spelling only
-        // "project/maintenance/alart",
-        // "project/maintenance/test",
+        "pomon/BFL_PomonA001/rnd/alert",
+
+
       ]);
     });
 
@@ -101,30 +107,39 @@ export const MqttProvider = ({ children }) => {
       });
 
       // ✅ Handle alert status
-if (topic === "pomon/BFL_PomonA001/rnd/alert") {
-  let formatted = messageStr.trim().toLowerCase();   // default fallback
+      if (topic === "pomon/BFL_PomonA001/rnd/alert") {
+        let formatted = messageStr.trim().toLowerCase();
+        console.log("📢 Alert data received:", formatted);
 
-  try {
-    const jsonPart = formatted.replace(/^alert status:\s*/i, "");
-    const payload = JSON.parse(jsonPart);
+        try {
+          const jsonPart = formatted.replace(/^alert status:\s*/i, "");
+          const payload = JSON.parse(jsonPart);
 
-    let deviceLabel = payload.adc;
-    if (payload.adc === "0x48") {
-      deviceLabel = "Device One";
-    } else if (payload.adc === "0x49") {
-      deviceLabel = "Device Two";
-    }
+          let deviceLabel = payload.adc;
+          if (payload.adc === "0x48") {
+            deviceLabel = "Device One";
+          } else if (payload.adc === "0x49") {
+            deviceLabel = "Device Two";
+          }
 
-    const phase = payload.phase.toUpperCase();
-    formatted = `${deviceLabel} , ${phase}-${payload.value}`;
-  } catch {
-    /* fallback to raw string if JSON parsing fails */
-  }
+          const phase = payload.phase.toUpperCase();
+          formatted = `${deviceLabel} , ${phase}-${payload.value}`;
 
-  setAlertStatus(formatted);
-  console.log("🚨 Alert status updated:", formatted);
-  return;
-}
+          if (
+            (deviceId === "0x48" || deviceId === "0x49") &&
+            lastDeviceRef.current !== deviceId
+          ) {
+            postMessage(formatted);
+            lastDeviceRef.current = deviceId;
+          }
+        } catch {
+          /* fallback to raw string if JSON parsing fails */
+        }
+
+        setAlertStatus(formatted);
+        console.log("🚨 Alert status updated:", formatted);
+        return;
+      }
 
     });
 
@@ -135,6 +150,31 @@ if (topic === "pomon/BFL_PomonA001/rnd/alert") {
       handleStatusChange("disconnected");
     };
   }, []);
+
+  const postMessage = async (alertStatus) => {
+
+    const formattedTime = new Date().toLocaleString("sv-SE").slice(0, 16).replace("T", " ");
+
+    const dataToSend = {
+      Alert_messages: alertStatus,
+      Time_stamp: formattedTime,
+    };
+
+    console.log("📤 Sending alert data to backend:", dataToSend);
+
+    try {
+      const response = await axios.post(`${apiUrl}/post_alert/`, dataToSend);
+      console.log("✅ Backend response:", response.data);
+    } catch (error) {
+      console.error("❌ Error posting alert message:", error);
+    }
+  };
+
+
+
+  useEffect(() => {
+    if (alertStatus) postMessage(alertStatus);
+  }, [alertStatus]);
 
   const publishMessage = (topic, message) => {
     if (client && client.connected) {
