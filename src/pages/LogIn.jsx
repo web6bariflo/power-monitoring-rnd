@@ -1,127 +1,181 @@
+// src/pages/Login.jsx
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const LogIn = () => {
+const Login = () => {
     const navigate = useNavigate();
-    const apiUrl = import.meta.env.VITE_BASE_URL;
-    console.log(apiUrl)
+    const apiUrl = import.meta.env.VITE_API_URL;
 
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+
+    const [showForgotPassword, setShowForgotPassword] = useState(false);
+    const [email, setEmail] = useState('');
 
 
 
-    const onSubmit = async (e) => {
+    const validateEmail = (email) => {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    };
+
+    const onLoginSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
+        setError('');
 
         try {
-            const response = await axios.post(`${apiUrl}/signin/`, {
+            const response = await axios.post(`${apiUrl}/login/`, {
                 identifier,
-                password,
-            }, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                password
             });
 
             const data = response.data;
-
-            localStorage.setItem('token', data.access);
-            localStorage.setItem('name', data.name);
+            localStorage.setItem('Device_id', data.Device_id);
+            localStorage.setItem('User_name', data.User_name);
             localStorage.setItem('Mob', data.Mob);
-            localStorage.setItem('id', data.id);
+            localStorage.setItem('Email', data.Email);
 
             console.log('Login successful:', data);
-            navigate('/masterpage');
+
+            navigate('/app');
         } catch (err) {
-            console.error('Login failed:', err);
-            setError('Login failed. Please check your credentials.');
+            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+        } finally {
+            setIsLoading(false);
         }
     };
+
+    const onForgotSubmit = async (e) => {
+        e.preventDefault();
+
+        const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        if (!isValidEmail) {
+            alert('Please enter a valid email address.');
+            return;
+        }
+
+        try {
+            await axios.post(`${apiUrl}/forgot_password/`, { email });
+            alert('Password reset link sent to your email.');
+            setEmail('');
+            setShowForgotPassword(false);
+            // navigate('/login');
+        } catch (err) {
+            console.error('Forgot password error:', err);
+            alert('Failed to send reset link. Please try again.');
+        }
+    };
+
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-md">
                 <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-                    Sign in to your account
+                    {showForgotPassword ? 'Reset your password' : 'Sign in to your account'}
                 </h2>
 
-                <form className="space-y-6" onSubmit={onSubmit}>
-                    {/* Email or Mobile */}
-                    <div>
-                        <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
-                            Email address / Mobile no
-                        </label>
-                        <input
-                            id="identifier"
-                            name="identifier"
-                            type="text"
-                            // autoComplete="username"
-                            required
-                            value={identifier}
-                            onChange={(e) => setIdentifier(e.target.value)}
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Email or Mobile number"
-                        />
-                    </div>
-
-                    {/* Password */}
-                    <div>
-                        <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                            Password
-                        </label>
-                        <input
-                            id="password"
-                            name="password"
-                            type="password"
-                            // autoComplete="current-password"
-                            required
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                            placeholder="Your password"
-                        />
-                    </div>
-
-                    {/* Options */}
-                    <div className="flex items-center justify-between">
-                        <label className="flex items-center text-sm">
+                {showForgotPassword ? (
+                    <form className="space-y-6" onSubmit={onForgotSubmit}>
+                        <div>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                                Enter your email address
+                            </label>
                             <input
-                                type="checkbox"
-                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                id="email"
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Email"
                             />
-                            <span className="ml-2 text-gray-700">Remember me</span>
-                        </label>
-                        <Link to="/forgetpassword" className="text-sm text-blue-600 hover:underline">
-                            Forgot password?
-                        </Link>
-                    </div>
-
-                    {/* Error Message */}
-                    {error && (
-                        <div className="text-red-600 text-sm text-center">
-                            {error}
                         </div>
-                    )}
 
-                    {/* Submit */}
-                    <button
-                        type="submit"
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow"
-                    >
-                        Sign In
-                    </button>
-                </form>
-                <p className="text-sm text-center mt-4">
-                    Don’t have an account? <Link to="/signup" className="text-blue-600 hover:underline">Sign Up</Link>
-                </p>
+                        <button
+                            type="submit"
+                            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow"
+                        >
+                            Send Reset Link
+                        </button>
 
+                        <p className="text-sm text-center mt-4">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setShowForgotPassword(false);
+                                    setEmail('');
+                                }}
+                                className="text-blue-600 hover:underline"
+                            >
+                                Back to login
+                            </button>
+                        </p>
+                    </form>
+                ) : (
+                    <form className="space-y-6" onSubmit={onLoginSubmit}>
+                        <div>
+                            <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
+                                Email address / Mobile no
+                            </label>
+                            <input
+                                id="identifier"
+                                name="identifier"
+                                type="text"
+                                required
+                                value={identifier}
+                                onChange={(e) => setIdentifier(e.target.value)}
+                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Email or Mobile number"
+                            />
+                        </div>
 
+                        <div>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                                Password
+                            </label>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                                placeholder="Your password"
+                            />
+                        </div>
+
+                        {error && (
+                            <div className="text-red-600 text-sm text-center">
+                                {error}
+                            </div>
+                        )}
+
+                        <div className="flex justify-end">
+                            <button
+                                type="button"
+                                onClick={() => setShowForgotPassword(true)}
+                                className="text-sm text-blue-600 hover:underline"
+                            >
+                                Forgot password?
+                            </button>
+                        </div>
+
+                        <button
+                            type="submit"
+                            disabled={isLoading}
+                            className={`w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg shadow ${isLoading ? 'opacity-70 cursor-not-allowed' : ''}`}
+                        >
+                            {isLoading ? 'Signing In...' : 'Sign In'}
+                        </button>
+                    </form>
+                )}
             </div>
         </div>
     );
 };
 
-export default LogIn;
+export default Login;

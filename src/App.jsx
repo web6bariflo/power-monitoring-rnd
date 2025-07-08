@@ -4,10 +4,15 @@ import Chart from './components/Chart';
 import { useMqtt } from './store/Mqtt';
 
 const App = () => {
-  const { eventLogs, passedMessage, alertStatus } = useMqtt(); // Access eventLogs and passedMessage from context
+  const { eventLogs, passedMessage, alertStatus } = useMqtt();
+
+  const user_name = localStorage.getItem('User_name');
 
   // Get the most recent event log, if available
   const lastStatusEvent = eventLogs?.length > 0 ? eventLogs[eventLogs.length - 1] : null;
+
+  console.log("Last Status Event:", lastStatusEvent);
+  console.log("Passed Message:", alertStatus);
 
   return (
     <div className="h-screen bg-gray-50 font-sans py-6">
@@ -36,9 +41,6 @@ const App = () => {
         )}
 
 
-
-
-
         {/* Show the latest status event log if it exists */}
         {lastStatusEvent ? (
           <h2 className="text-lg text-gray-600 mt-1">
@@ -49,10 +51,17 @@ const App = () => {
         )}
       </header>
 
-      <span className="text-sm font-semibold text-gray-700 ms-8">
-        Alert Status: {alertStatus}
-      </span>
+      <div className='flex justify-between items-center w-auto mx-auto mb-6 px-20'>
 
+        <span className="text-xl font-semibold text-gray-700">
+          Welcome: <span className=' font-bold text-blue-700'>{user_name}</span>
+        </span>
+
+        <div className="text-md font-semibold text-gray-700 ms-26">
+          Alert Status: {alertStatus}
+        </div>
+
+      </div>
 
 
       {/* Column Layout */}

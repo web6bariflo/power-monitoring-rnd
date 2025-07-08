@@ -11,7 +11,8 @@ export const MqttProvider = ({ children }) => {
   const [passedMessage, setPassedMessage] = useState(null);
   const [alertStatus, setAlertStatus] = useState(null);
 
-  const apiUrl = import.meta.env.VITE_API_URL
+  const deviceId = localStorage.getItem("Device_id"); // ✅ Updated: using correct Device_id
+  const apiUrl = import.meta.env.VITE_API_URL;
 
   const [data, setData] = useState(() => ({
     // "123/rnd": [],
@@ -21,7 +22,13 @@ export const MqttProvider = ({ children }) => {
   // 🔗 NEW: remember which device triggered the last post
   const lastDeviceRef = useRef(null);
 
+  // ✅ Only connect if user is logged in
   useEffect(() => {
+    if (!deviceId) {
+      console.warn("⛔ Not logged in — skipping MQTT setup");
+      return;
+    }
+
     const mqttClient = mqtt.connect({
       hostname: "mqttbroker.bc-pl.com",
       port: 443,
@@ -45,9 +52,8 @@ export const MqttProvider = ({ children }) => {
       mqttClient.subscribe([
         // "123/rnd",
         "pomon/BFL_PomonA001/rnd/status",
-        "pomon/BFL_PomonA001/rnd/alert",
-
-
+        // "pomon/BFL_PomonA001/rnd/alert",
+        "alert/data",
       ]);
     });
 
@@ -107,7 +113,8 @@ export const MqttProvider = ({ children }) => {
       });
 
       // ✅ Handle alert status
-      if (topic === "pomon/BFL_PomonA001/rnd/alert") {
+      // if (topic === "pomon/BFL_PomonA001/rnd/alert") {
+      if (topic === "alert/data") {
         let formatted = messageStr.trim().toLowerCase();
         console.log("📢 Alert data received:", formatted);
 
@@ -126,11 +133,11 @@ export const MqttProvider = ({ children }) => {
           formatted = `${deviceLabel} , ${phase}-${payload.value}`;
 
           if (
-            (deviceId === "0x48" || deviceId === "0x49") &&
-            lastDeviceRef.current !== deviceId
+            (payload.adc === "0x48" || payload.adc === "0x49") &&
+            lastDeviceRef.current !== payload.adc
           ) {
             postMessage(formatted);
-            lastDeviceRef.current = deviceId;
+            lastDeviceRef.current = payload.adc;
           }
         } catch {
           /* fallback to raw string if JSON parsing fails */
@@ -140,7 +147,6 @@ export const MqttProvider = ({ children }) => {
         console.log("🚨 Alert status updated:", formatted);
         return;
       }
-
     });
 
     setClient(mqttClient);
@@ -149,15 +155,20 @@ export const MqttProvider = ({ children }) => {
       mqttClient.end();
       handleStatusChange("disconnected");
     };
-  }, []);
+  }, [deviceId]);
 
   const postMessage = async (alertStatus) => {
+    if (!deviceId) {
+      console.warn("⛔ Cannot post alert — no user logged in.");
+      return;
+    }
 
     const formattedTime = new Date().toLocaleString("sv-SE").slice(0, 16).replace("T", " ");
 
     const dataToSend = {
       Alert_messages: alertStatus,
       Time_stamp: formattedTime,
+      device_id: deviceId, // ✅ Correct key used for backend
     };
 
     console.log("📤 Sending alert data to backend:", dataToSend);
@@ -170,11 +181,9 @@ export const MqttProvider = ({ children }) => {
     }
   };
 
-
-
   useEffect(() => {
-    if (alertStatus) postMessage(alertStatus);
-  }, [alertStatus]);
+    if (alertStatus && deviceId) postMessage(alertStatus);
+  }, [alertStatus, deviceId]);
 
   const publishMessage = (topic, message) => {
     if (client && client.connected) {
