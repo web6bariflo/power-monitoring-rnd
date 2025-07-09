@@ -121,7 +121,7 @@ const Login = () => {
                     <form className="space-y-6" onSubmit={onLoginSubmit}>
                         <div>
                             <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
-                                Email address / Mobile no
+                                User Name
                             </label>
                             <input
                                 id="identifier"
@@ -131,7 +131,7 @@ const Login = () => {
                                 value={identifier}
                                 onChange={(e) => setIdentifier(e.target.value)}
                                 className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
-                                placeholder="Email or Mobile number"
+                                placeholder="Your User Name"
                             />
                         </div>
 
