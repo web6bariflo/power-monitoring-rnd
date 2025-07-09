@@ -38,6 +38,9 @@ const Login = () => {
             localStorage.setItem('Mob', data.Mob);
             localStorage.setItem('Email', data.Email);
 
+            // ✅ Add this line to mark user as logged in
+            localStorage.setItem('isLoggedIn', 'true');
+
             console.log('Login successful:', data);
 
             navigate('/app');

@@ -1,30 +1,50 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import RnD from './pages/R&D';
 import Chart from './components/Chart';
 import { useMqtt } from './store/Mqtt';
+import axios from 'axios';
 
 const App = () => {
   const { eventLogs, passedMessage, alertStatus } = useMqtt();
-
   const user_name = localStorage.getItem('User_name');
+  const deviceId = localStorage.getItem('Device_id');
+  const hasPostedRef = useRef(false);
+  const apiUrl = import.meta.env.VITE_API_URL;
 
-  // Get the most recent event log, if available
+  // ✅ Post alert after login & alert status received
+  useEffect(() => {
+    if (alertStatus && deviceId && !hasPostedRef.current) {
+      const postMessage = async () => {
+        const formattedTime = new Date().toLocaleString("sv-SE").slice(0, 16).replace("T", " ");
+        const dataToSend = {
+          alert_message: alertStatus,
+          Time_stamp: formattedTime,
+          device_id: deviceId,
+        };
+
+        console.log("📤 Posting alert from App.jsx:", dataToSend);
+        try {
+          const response = await axios.post(`${apiUrl}/post_alert/`, dataToSend);
+          console.log("✅ Backend response:", response.data);
+          hasPostedRef.current = true;
+        } catch (error) {
+          console.error("❌ Error posting alert:", error.response?.data || error.message);
+        }
+      };
+
+      postMessage();
+    }
+  }, [alertStatus, deviceId]);
+
   const lastStatusEvent = eventLogs?.length > 0 ? eventLogs[eventLogs.length - 1] : null;
-
-  console.log("Last Status Event:", lastStatusEvent);
-  console.log("Passed Message:", alertStatus);
 
   return (
     <div className="h-screen bg-gray-50 font-sans py-6">
-
-      {/* Header */}
       <header className="mb-10 text-center">
         <h1 className="text-2xl font-semibold text-gray-800 mb-1">
           Power Monitoring Dashboard
         </h1>
 
-
-        {/* Show the latest R&D event if passedMessage exists */}
         {passedMessage ? (
           <h2 className="text-lg text-indigo-700 mt-2 font-medium">
             🕒 Power Monitoring Schedule: Start: {passedMessage.start_time}, Duration: {passedMessage.duration}s,
@@ -40,8 +60,6 @@ const App = () => {
           <h2 className="text-lg text-gray-600 mt-2">No schedule published.</h2>
         )}
 
-
-        {/* Show the latest status event log if it exists */}
         {lastStatusEvent ? (
           <h2 className="text-lg text-gray-600 mt-1">
             📢 Status: {lastStatusEvent.message}
@@ -52,36 +70,28 @@ const App = () => {
       </header>
 
       <div className='flex justify-between items-center w-auto mx-auto mb-6 px-20'>
-
         <span className="text-xl font-semibold text-gray-700">
-          Welcome: <span className=' font-bold text-blue-700'>{user_name}</span>
+          Welcome: <span className='font-bold text-blue-700'>{user_name}</span>
         </span>
 
         <div className="text-md font-semibold text-gray-700 ms-26">
           Alert Status: {alertStatus}
         </div>
-
       </div>
 
-
-      {/* Column Layout */}
       <div className="flex flex-col md:flex-row gap-2 max-w-7xl mx-auto">
-        {/* R&D Panel - 20% width */}
         <div className="w-full md:w-2/7 h-90">
           <RnD />
         </div>
 
-        {/* Chart Panel - 80% width */}
         <div className="w-full md:w-5/7 bg-white rounded-lg shadow-sm border border-gray-200 me-4 p-2">
           <h2 className="text-lg font-medium text-gray-700 mb-3">
             Device Analytics
           </h2>
-
           <Chart />
         </div>
       </div>
 
-      {/* Footer */}
       <footer className="mt-16 text-center text-gray-500 text-xs">
         <p>Power Monitoring Dashboard • Bariflo Labs - {new Date().getFullYear()}</p>
       </footer>

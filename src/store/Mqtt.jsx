@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import mqtt from "mqtt";
-import axios from "axios";
 
 const MqttContext = createContext();
 
@@ -11,18 +10,14 @@ export const MqttProvider = ({ children }) => {
   const [passedMessage, setPassedMessage] = useState(null);
   const [alertStatus, setAlertStatus] = useState(null);
 
-  const deviceId = localStorage.getItem("Device_id"); // ✅ Updated: using correct Device_id
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const deviceId = localStorage.getItem("Device_id");
 
   const [data, setData] = useState(() => ({
-    // "123/rnd": [],
     "pomon/BFL_PomonA001/rnd/status": [],
   }));
 
-  // 🔗 NEW: remember which device triggered the last post
   const lastDeviceRef = useRef(null);
 
-  // ✅ Only connect if user is logged in
   useEffect(() => {
     if (!deviceId) {
       console.warn("⛔ Not logged in — skipping MQTT setup");
@@ -50,10 +45,9 @@ export const MqttProvider = ({ children }) => {
     mqttClient.on("connect", () => {
       handleStatusChange("connected");
       mqttClient.subscribe([
-        // "123/rnd",
         "pomon/BFL_PomonA001/rnd/status",
-        // "pomon/BFL_PomonA001/rnd/alert",
-        "alert/data",
+        "pomon/BFL_PomonA001/rnd/alert",
+        // "alert/data",
       ]);
     });
 
@@ -67,14 +61,12 @@ export const MqttProvider = ({ children }) => {
 
     mqttClient.on("error", (err) => {
       // console.error("MQTT error:", err);
-      // handleStatusChange("error");
     });
 
     mqttClient.on("message", (topic, message) => {
       const messageStr = message.toString();
       console.log(`📩 ${topic}:`, messageStr);
 
-      // Split multi-line messages (if both devices are in one message)
       const lines = messageStr
         .split("\n")
         .map((line) => line.trim())
@@ -93,7 +85,6 @@ export const MqttProvider = ({ children }) => {
         };
       });
 
-      // Filter specific logs for eventLogs
       const allowedLogs = [
         "New R&D event scheduled.",
         "Activated Aeration Device",
@@ -112,9 +103,8 @@ export const MqttProvider = ({ children }) => {
         }
       });
 
-      // ✅ Handle alert status
-      // if (topic === "pomon/BFL_PomonA001/rnd/alert") {
-      if (topic === "alert/data") {
+      // if (topic === "alert/data") {
+      if (topic === "pomon/BFL_PomonA001/rnd/status") {
         let formatted = messageStr.trim().toLowerCase();
         console.log("📢 Alert data received:", formatted);
 
@@ -136,16 +126,14 @@ export const MqttProvider = ({ children }) => {
             (payload.adc === "0x48" || payload.adc === "0x49") &&
             lastDeviceRef.current !== payload.adc
           ) {
-            postMessage(formatted);
             lastDeviceRef.current = payload.adc;
           }
         } catch {
-          /* fallback to raw string if JSON parsing fails */
+          // fallback to raw string
         }
 
         setAlertStatus(formatted);
         console.log("🚨 Alert status updated:", formatted);
-        return;
       }
     });
 
@@ -156,34 +144,6 @@ export const MqttProvider = ({ children }) => {
       handleStatusChange("disconnected");
     };
   }, [deviceId]);
-
-  const postMessage = async (alertStatus) => {
-    if (!deviceId) {
-      console.warn("⛔ Cannot post alert — no user logged in.");
-      return;
-    }
-
-    const formattedTime = new Date().toLocaleString("sv-SE").slice(0, 16).replace("T", " ");
-
-    const dataToSend = {
-      Alert_messages: alertStatus,
-      Time_stamp: formattedTime,
-      device_id: deviceId, // ✅ Correct key used for backend
-    };
-
-    console.log("📤 Sending alert data to backend:", dataToSend);
-
-    try {
-      const response = await axios.post(`${apiUrl}/post_alert/`, dataToSend);
-      console.log("✅ Backend response:", response.data);
-    } catch (error) {
-      console.error("❌ Error posting alert message:", error);
-    }
-  };
-
-  useEffect(() => {
-    if (alertStatus && deviceId) postMessage(alertStatus);
-  }, [alertStatus, deviceId]);
 
   const publishMessage = (topic, message) => {
     if (client && client.connected) {
