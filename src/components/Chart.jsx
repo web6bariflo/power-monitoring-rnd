@@ -129,12 +129,7 @@ const LineCharts = () => {
         Reset
       </button>
 
-
-
       <div className="flex flex-col md:flex-row gap-6 p-3 h-fit">
-
-
-
 
         {/* Device 0x48 */}
         <div className="w-full md:w-1/2 h-96 bg-white p-4 shadow rounded relative">
