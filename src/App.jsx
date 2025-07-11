@@ -69,12 +69,17 @@ const App = () => {
         )}
       </header>
 
-      <div className='flex justify-between items-center w-auto mx-auto mb-6 px-20'>
-        <span className="text-xl font-semibold text-gray-700">
-          Welcome: <span className='font-bold text-blue-700'>{user_name}</span>
-        </span>
+      <div className="animate-fadeInOut fixed top-4 left-4 z-50 bg-white border-l-4 border-blue-500 shadow-xl rounded-xl px-6 py-4 w-fit max-w-sm">
+        <div>
+          <p className="text-sm text-gray-500">Hello,</p>
+          <p className="text-lg font-bold text-gray-800">
+            Welcome, <span className="text-blue-700">{user_name}</span>
+          </p>
+        </div>
+      </div>
 
-        <div className="text-md font-semibold text-gray-700 ms-26">
+      <div className='flex flex-row justify-between items-center w-full max-w-7xl mx-auto mb-6 px-6'>
+        <div className="text-md font-semibold text-gray-700">
           Alert Status: {alertStatus}
         </div>
       </div>
@@ -93,7 +98,7 @@ const App = () => {
       </div>
 
       <footer className="mt-16 text-center text-gray-500 text-xs">
-        <p>Power Monitoring Dashboard • Bariflo Labs - {new Date().getFullYear()}</p>
+        <p>Power Monitoring Dashboard • Bariflo Cybernetics - {new Date().getFullYear()}</p>
       </footer>
     </div>
   );

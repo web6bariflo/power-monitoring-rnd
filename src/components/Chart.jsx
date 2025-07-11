@@ -124,7 +124,7 @@ const LineCharts = () => {
     <React.Fragment>
       <button
         onClick={handleReset}
-        className="absolute top-4 right-4 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-xl me-16"
+        className="absolute top-6 right-4 bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded-xl me-4 shadow-md transition duration-300 ease-in-out"
       >
         Reset
       </button>
@@ -133,7 +133,7 @@ const LineCharts = () => {
 
         {/* Device 0x48 */}
         <div className="w-full md:w-1/2 h-96 bg-white p-4 shadow rounded relative">
-          <h2 className="text-lg font-semibold mb-2">Areation Device One</h2>
+          <h2 className="text-lg font-semibold mb-2">Aeration Device One</h2>
           <div className="absolute top-4 right-4 flex gap-2 text-sm">
             <label className="flex items-center gap-1 text-red-600 font-medium">
               <input
@@ -168,7 +168,7 @@ const LineCharts = () => {
 
         {/* Device 0x49 */}
         <div className="w-full md:w-1/2 h-96 bg-white p-4 shadow rounded relative">
-          <h2 className="text-lg font-semibold mb-2">Areation Device Two</h2>
+          <h2 className="text-lg font-semibold mb-2">Aeration Device Two</h2>
           <div className="absolute top-4 right-4 flex gap-2 text-sm">
             <label className="flex items-center gap-1 text-red-600 font-medium">
               <input

@@ -2,7 +2,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 
-import Login from './pages/Login';
+import Login from './pages/LogIn';
 import App from './App';
 import ProtectedRoute from './pages/ProtectedRoute';
 
@@ -17,7 +17,7 @@ const RouterApp = () => (
 
       {/* Protected route */}
       <Route element={<ProtectedRoute />}>
-        <Route path="/app" element={<App />} />
+        <Route path="/powermonitoringdashboard" element={<App />} />
       </Route>
 
       {/* Catch-all redirect */}

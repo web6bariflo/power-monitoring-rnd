@@ -43,7 +43,7 @@ const Login = () => {
 
             console.log('Login successful:', data);
 
-            navigate('/app');
+            navigate('/powermonitoringdashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
         } finally {
@@ -77,7 +77,7 @@ const Login = () => {
         <div className="min-h-screen flex items-center justify-center bg-gray-100">
             <div className="max-w-md w-full bg-white p-8 rounded-2xl shadow-md">
                 <h2 className="text-2xl font-bold text-center mb-6 text-gray-800">
-                    {showForgotPassword ? 'Reset your password' : 'Sign in to your account'}
+                    {showForgotPassword ? 'Reset your password' : 'Sign in to your Power Monitoring Dashboard'}
                 </h2>
 
                 {showForgotPassword ? (
