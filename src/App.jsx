@@ -11,10 +11,10 @@ const App = () => {
   const hasPostedRef = useRef(false);
   const apiUrl = import.meta.env.VITE_API_URL;
   const {loggedUserData} = useMqtt()
-   const user_name = loggedUserData.User_name;
-  const deviceId = loggedUserData.Device_id
-
-  console.log(loggedUserData);
+  const storedData = localStorage.getItem('loggedData');
+   const userData = storedData ? JSON.parse(storedData) : null;
+   const user_name = userData?.User_name;
+  const deviceId = userData?.Device_id
   
 
   // ✅ Post alert after login & alert status received
