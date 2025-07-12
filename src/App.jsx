@@ -71,7 +71,7 @@ const App = () => {
 
       <div className="animate-fadeInOut fixed top-4 left-4 z-50 bg-white border-l-4 border-blue-500 shadow-xl rounded-xl px-6 py-4 w-fit max-w-sm">
         <div>
-          <p className="text-sm text-gray-500">Hello,</p>
+          {/* <p className="text-sm text-gray-500">Hello,</p> */}
           <p className="text-lg font-bold text-gray-800">
             Welcome, <span className="text-blue-700">{user_name}</span>
           </p>

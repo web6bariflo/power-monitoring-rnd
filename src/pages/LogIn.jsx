@@ -43,7 +43,9 @@ const Login = () => {
 
             console.log('Login successful:', data);
 
-            navigate('/powermonitoringdashboard');
+            setTimeout(() => {
+                navigate('/powermonitoringdashboard');
+            }, 100);
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
         } finally {
@@ -117,6 +119,7 @@ const Login = () => {
                             </button>
                         </p>
                     </form>
+                    
                 ) : (
                     <form className="space-y-6" onSubmit={onLoginSubmit}>
                         <div>
