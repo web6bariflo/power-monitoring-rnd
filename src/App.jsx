@@ -1,15 +1,21 @@
 import React, { useEffect, useRef } from 'react';
 import RnD from './pages/R&D';
 import Chart from './components/Chart';
-import { useMqtt } from './store/Mqtt';
 import axios from 'axios';
+import { useMqtt } from './store/Mqtt';
 
 const App = () => {
+
   const { eventLogs, passedMessage, alertStatus } = useMqtt();
-  const user_name = localStorage.getItem('User_name');
-  const deviceId = localStorage.getItem('Device_id');
+ 
   const hasPostedRef = useRef(false);
   const apiUrl = import.meta.env.VITE_API_URL;
+  const {loggedUserData} = useMqtt()
+   const user_name = loggedUserData.User_name;
+  const deviceId = loggedUserData.Device_id
+
+  console.log(loggedUserData);
+  
 
   // ✅ Post alert after login & alert status received
   useEffect(() => {

@@ -10,7 +10,7 @@ export const MqttProvider = ({ children }) => {
   const [passedMessage, setPassedMessage] = useState(null);
   const [alertStatus, setAlertStatus] = useState(null);
 
-  const deviceId = localStorage.getItem("Device_id");
+  const [loggedUserData, setLoggedUserData] = useState(localStorage.getItem("loggedData"))
 
   const [data, setData] = useState(() => ({
     "pomon/BFL_PomonA001/rnd/status": [],
@@ -18,11 +18,15 @@ export const MqttProvider = ({ children }) => {
 
   const lastDeviceRef = useRef(null);
 
+  const storeDataInLS = (userData) => {
+    setLoggedUserData(userData);
+    return localStorage.setItem("loggedData", JSON.stringify(userData))
+  }
+
+  const deviceId = loggedUserData.Device_id
+
+
   useEffect(() => {
-    if (!deviceId) {
-      console.warn("⛔ Not logged in — skipping MQTT setup");
-      return;
-    }
 
     const mqttClient = mqtt.connect({
       hostname: "mqttbroker.bc-pl.com",
@@ -180,6 +184,9 @@ export const MqttProvider = ({ children }) => {
         connectionStatus,
         eventLogs,
         passedMessage,
+        loggedUserData,
+        storeDataInLS
+
       }}
     >
       {children}
